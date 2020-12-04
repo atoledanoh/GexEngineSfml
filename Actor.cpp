@@ -35,23 +35,6 @@ Actor::Actor(Type type, const TextureHolder_t& textures, const FontHolder_t& fon
 		state_ = State::JumpUp;
 		break;
 
-	//case Actor::Type::Car1:
-	//	break;
-
-	//case Actor::Type::Car2:
-	//	break;
-
-	//case Actor::Type::Car3:
-	//	break;
-
-	//case Actor::Type::Tractor:
-	//	state_ = State::Idle;
-	//	break;
-
-	//case Actor::Type::Truck:
-	//	state_ = State::Idle;
-	//	break;
-
 	default:
 		state_ = State::Idle;
 		break;
@@ -97,6 +80,10 @@ unsigned int Actor::getCategory() const
 
 	case Type::Truck:
 		return Category::Truck;
+		break;
+
+	case Type::Cherry:
+		return Category::Cherry;
 		break;
 	}
 }

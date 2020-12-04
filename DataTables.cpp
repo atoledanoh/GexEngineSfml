@@ -115,6 +115,22 @@ std::map<Actor::Type, ActorData> initializeActorData()
 	data[Actor::Type::Truck].directions.emplace_back(Direction(270.f, 50.f));
 
 	/// <summary>
+	/// CHERRY TABLE
+	/// </summary>
+	/// <returns></returns>
+	data[Actor::Type::Cherry].texture = Textures::TextureID::Cherry;
+	data[Actor::Type::Cherry].hitpoints = 10;
+	data[Actor::Type::Cherry].damageDone = 10;
+	data[Actor::Type::Cherry].speed = 50;
+
+	JsonFrameParser frames2 = JsonFrameParser("Media/Textures/Entities2.json");
+
+	data[Actor::Type::Cherry].animations[Actor::State::Idle].addFrameSet(frames2.getFramesFor("cherry"));
+	data[Actor::Type::Cherry].animations[Actor::State::Idle].setDuration(sf::seconds(1.f));
+	data[Actor::Type::Cherry].animations[Actor::State::Idle].setRepeating(false);
+	//data[Actor::Type::Cherry].directions.emplace_back(Direction(270.f, 50.f));
+
+	/// <summary>
 	/// END OF TABLES
 	/// </summary>
 	/// <returns></returns>

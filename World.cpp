@@ -24,7 +24,7 @@ World::World(sf::RenderTarget& outputTarget, FontHolder_t& fonts, SoundPlayer& s
 	loadTextures();
 	buildScene();
 
-	worldView.setCenter(240.f, 300.f);
+	worldView.setCenter(240.f, 240.f);
 }
 
 CommandQueue& World::getCommands()
@@ -84,6 +84,7 @@ void World::loadTextures()
 	textures.load(Textures::TextureID::Car3, "Media/Textures/frog.png");
 	textures.load(Textures::TextureID::Tractor, "Media/Textures/frog.png");
 	textures.load(Textures::TextureID::Truck, "Media/Textures/frog.png");
+	textures.load(Textures::TextureID::Cherry, "Media/Textures/Entities2.png");
 
 }
 
@@ -129,16 +130,10 @@ void World::addEnemies()
 {
 	// Add enemies to the spawn point container
 
-	addEnemy(Actor::Type::Truck, 0.f, 540.f);
-	addEnemy(Actor::Type::Car1, 0.f, 500.f);
 	addEnemy(Actor::Type::Car2, 0.f, 460.f);
 	addEnemy(Actor::Type::Tractor, 0.f, 420.f);
 	addEnemy(Actor::Type::Car3, 0.f, 380.f);
-
-	//addEnemy(Actor::Type::Zombie2, -470.f, 200.f);
-
-	//addEnemy(Aircraft::Type::Raptor, +100.f, 1100.f);
-	//addEnemy(Aircraft::Type::Avenger, -70.f, 1400.f);
+	addEnemy(Actor::Type::Cherry, 240.f, 0.f);
 
 
 	std::sort(enemySpawnPoints.begin(), enemySpawnPoints.end(),
@@ -180,6 +175,14 @@ void World::handleCollisions()
 	// better collision? and making the frog die RIP
 	for (auto pair : collisionPairs)
 	{
+
+		if (matchesCategories(pair, Category::Frog, Category::Cherry)) {
+			auto& frog = static_cast<Actor&>(*pair.first);
+			auto& actor = static_cast<Actor&>(*pair.second);
+
+			frog.setPosition(spawnPosition);
+		}
+
 		if (matchesCategories(pair, Category::Frog, Category::Actor)) {
 			auto& frog = static_cast<Actor&>(*pair.first);
 			auto& actor = static_cast<Actor&>(*pair.second);
@@ -241,7 +244,7 @@ void World::adaptPlayerPosition()
 	float bottom = worldView.getCenter().y + worldView.getSize().y / 2.f;
 
 	const float borderDistance = 15.f;
-	const float lilypadBorderDistance = 100.f;
+	const float lilypadBorderDistance = 15.f;
 
 	if (position.x < left + borderDistance) {
 		playerFrog->setPosition(left + borderDistance, position.y);

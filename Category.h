@@ -20,8 +20,9 @@ namespace Category
 		Car2				= 1 << 12,
 		Car3				= 1 << 13,
 		Truck				= 1 << 14,
+		Cherry				= 1 << 15,
 
-		Actor = Frog | Tractor | Car1 | Car2 | Car3 | Tractor | Truck,
+		Actor = Frog | Tractor | Car1 | Car2 | Car3 | Tractor | Truck | Cherry,
 		Aircraft = PlayerAircraft | AlliedAircraft | EnemyAircraft,
 		Projectile = AlliedProjectile | EnemyProjectile,
 	};
