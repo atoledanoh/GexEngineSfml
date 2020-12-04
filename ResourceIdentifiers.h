@@ -48,7 +48,8 @@ namespace Textures
 		Particle,
 		FinishLine,
 
-		Frog,
+		Pacman,
+		Ghost,
 		Car1,
 		Car2,
 		Car3,

@@ -4,40 +4,44 @@
 std::map<Actor::Type, ActorData> initializeActorData()
 {
 	std::map<Actor::Type, ActorData> data;
-	data[Actor::Type::Frog].texture = Textures::TextureID::Frog;
-	data[Actor::Type::Frog].hitpoints = 10;
-	data[Actor::Type::Frog].damageDone = 10;
-	data[Actor::Type::Frog].speed = 50;
+	data[Actor::Type::Pacman].texture = Textures::TextureID::Pacman;
+	data[Actor::Type::Pacman].hitpoints = 1;
+	data[Actor::Type::Pacman].damageDone = 0;
+	data[Actor::Type::Pacman].speed = 100;
+
+	JsonFrameParser pacmanFrames = JsonFrameParser("Media/Textures/Entities.json");
+
+	/// <summary>
+	/// PACMAN ANIMATIONS
+	/// </summary>
+	/// <returns></returns>
+	data[Actor::Type::Pacman].animations[Actor::State::Idle].addFrameSet(pacmanFrames.getFramesFor("pacman walk"));
+	data[Actor::Type::Pacman].animations[Actor::State::Idle].setDuration(sf::seconds(0.7f));
+	data[Actor::Type::Pacman].animations[Actor::State::Idle].setRepeating(true);
+
+	data[Actor::Type::Pacman].animations[Actor::State::Dead].addFrameSet(pacmanFrames.getFramesFor("die"));
+	data[Actor::Type::Pacman].animations[Actor::State::Dead].setDuration(sf::seconds(1.f));
+	data[Actor::Type::Pacman].animations[Actor::State::Dead].setRepeating(false);
+
+	/// <summary>
+	/// GHOST ANIMATIONS
+	/// </summary>
+	/// <returns></returns>
+	/// 
+	/// 
+	data[Actor::Type::Ghost].texture = Textures::TextureID::Ghost;
+	data[Actor::Type::Ghost].hitpoints = 10;
+	data[Actor::Type::Ghost].damageDone = 1000;
+	data[Actor::Type::Ghost].speed = 100;
+
+	data[Actor::Type::Ghost].animations[Actor::State::Idle].addFrameSet(pacmanFrames.getFramesFor("ghost"));
+	data[Actor::Type::Ghost].animations[Actor::State::Idle].setDuration(sf::seconds(0.7f));
+	data[Actor::Type::Ghost].animations[Actor::State::Idle].setRepeating(true);
+
+	data[Actor::Type::Ghost].directions.emplace_back(Direction(180.f, 360.f));
+	data[Actor::Type::Ghost].directions.emplace_back(Direction(0.f, 360.f));
 
 	JsonFrameParser frames = JsonFrameParser("Media/Textures/frog.json");
-
-	/// <summary>
-	/// FROG ANIMATIONS
-	/// </summary>
-	/// <returns></returns>
-	data[Actor::Type::Frog].animations[Actor::State::JumpUp].addFrameSet(frames.getFramesFor("jumpUp"));
-	data[Actor::Type::Frog].animations[Actor::State::JumpUp].setDuration(sf::seconds(0.7f));
-	data[Actor::Type::Frog].animations[Actor::State::JumpUp].setRepeating(false);
-
-	data[Actor::Type::Frog].animations[Actor::State::JumpDown].addFrameSet(frames.getFramesFor("jumpDown"));
-	data[Actor::Type::Frog].animations[Actor::State::JumpDown].setDuration(sf::seconds(0.7f));
-	data[Actor::Type::Frog].animations[Actor::State::JumpDown].setRepeating(false);
-
-	data[Actor::Type::Frog].animations[Actor::State::JumpLeft].addFrameSet(frames.getFramesFor("jumpLeft"));
-	data[Actor::Type::Frog].animations[Actor::State::JumpLeft].setDuration(sf::seconds(0.7f));
-	data[Actor::Type::Frog].animations[Actor::State::JumpLeft].setRepeating(false);
-
-	data[Actor::Type::Frog].animations[Actor::State::JumpRight].addFrameSet(frames.getFramesFor("jumpRight"));
-	data[Actor::Type::Frog].animations[Actor::State::JumpRight].setDuration(sf::seconds(0.7f));
-	data[Actor::Type::Frog].animations[Actor::State::JumpRight].setRepeating(false);
-
-	/// <summary>
-	/// death animation had already been implemented
-	/// </summary>
-	/// <returns></returns>
-	data[Actor::Type::Frog].animations[Actor::State::Dead].addFrameSet(frames.getFramesFor("death"));
-	data[Actor::Type::Frog].animations[Actor::State::Dead].setDuration(sf::seconds(1.f));
-	data[Actor::Type::Frog].animations[Actor::State::Dead].setRepeating(false);
 
 	/// <summary>
 	/// CAR1 TABLE

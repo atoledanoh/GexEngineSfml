@@ -96,7 +96,7 @@ private:
 	sf::FloatRect						worldBounds;
 	sf::Vector2f						spawnPosition;
 	float								scrollSpeed;
-	Actor*								playerFrog;
+	Actor*								playerPacman;
 	int									jumpCooldown;
 
 	std::vector<SpawnPoint>				enemySpawnPoints;

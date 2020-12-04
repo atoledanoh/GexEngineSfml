@@ -31,7 +31,7 @@ Actor::Actor(Type type, const TextureHolder_t& textures, const FontHolder_t& fon
 
 	switch (type)
 	{
-	case Actor::Type::Frog:
+	case Actor::Type::Pacman:
 		state_ = State::JumpUp;
 		break;
 
@@ -59,9 +59,14 @@ unsigned int Actor::getCategory() const
 {
 	switch (type_)
 	{
-	case Type::Frog:
-		return Category::Frog;
+	case Type::Pacman:
+		return Category::Pacman;
 		break;
+
+	case Type::Ghost:
+		return Category::Ghost;
+		break;
+
 	case Type::Car1:
 		return Category::Car1;
 		break;
@@ -142,9 +147,9 @@ Actor::State Actor::getState() const
 
 int Actor::attackPoints() const
 {
-	if (type_ == Type::Frog && state_ == State::Attack)
+	if (type_ == Type::Pacman && state_ == State::Attack)
 		return TABLE.at(type_).damageDone;
-	else if (type_ != Type::Frog)
+	else if (type_ != Type::Pacman)
 		return TABLE.at(type_).damageDone;
 	else
 		return 0;
@@ -152,8 +157,12 @@ int Actor::attackPoints() const
 
 void Actor::updateStates()
 {
-	if (isDestroyed())
+	if (isDestroyed()) {
 		state_ = Actor::State::Dead;
+	}
+	else {
+		state_ = Actor::State::Idle;
+	}
 }
 
 void Actor::updateCurrent(sf::Time dt, CommandQueue& commands)

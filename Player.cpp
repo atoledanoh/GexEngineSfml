@@ -58,23 +58,23 @@ void Player::initializeActions()
     const float playerSpeed = 100.f;
 
     actionBindings[Action::MoveLeft].action = derivedAction<Actor>(
-        [playerSpeed](Actor& a, sf::Time dt) {a.hop(Actor::Direction::Left); }
+        [playerSpeed](Actor& a, sf::Time dt) {a.accelerate(sf::Vector2f(-playerSpeed, 0.f)); }
         );
 
     actionBindings[Action::MoveRight].action = derivedAction<Actor>(
-        [playerSpeed](Actor& a, sf::Time dt) {a.hop(Actor::Direction::Right); }
+        [playerSpeed](Actor& a, sf::Time dt) {a.accelerate(sf::Vector2f(playerSpeed, 0.f)); }
     );
 
     actionBindings[Action::MoveUp].action = derivedAction<Actor>(
-        [playerSpeed](Actor& a, sf::Time dt) {a.hop(Actor::Direction::Up); }
+        [playerSpeed](Actor& a, sf::Time dt) {a.accelerate(sf::Vector2f(0.f, -playerSpeed)); }
     );
 
     actionBindings[Action::MoveDown].action = derivedAction<Actor>(
-        [playerSpeed](Actor& a, sf::Time dt) {a.hop(Actor::Direction::Down); }
+        [playerSpeed](Actor& a, sf::Time dt) {a.accelerate(sf::Vector2f(0.f, playerSpeed)); }
     );
 
     for (auto& pair : actionBindings) {
-        pair.second.category = Category::Frog;
+        pair.second.category = Category::Pacman;
     }
 
 }
@@ -88,7 +88,7 @@ bool Player::isRealTimeAction(Action action)
     case Action::MoveDown:
     case Action::MoveUp:
     case Action::Fire:
-        return false;
+        return true;
     default:
         return false;
     }

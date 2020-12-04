@@ -13,7 +13,7 @@ class Actor : public Entity
 public:
 
 	enum class Type {
-		Frog, Car1, Car2, Car3, Tractor, Truck, Cherry
+		Pacman, Ghost, Car1, Car2, Car3, Tractor, Truck, Cherry
 	};
 
 	enum class State {

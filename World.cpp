@@ -18,7 +18,7 @@ World::World(sf::RenderTarget& outputTarget, FontHolder_t& fonts, SoundPlayer& s
 	, commandQueue()
 	, worldBounds(0.f, 0.f, worldView.getSize().x, worldView.getSize().y)
 	, spawnPosition(240.f, 240.f)
-	, playerFrog(nullptr)
+	, playerPacman(nullptr)
 {
 	sceneTexture.create(target.getSize().x, target.getSize().y);
 	loadTextures();
@@ -34,18 +34,18 @@ CommandQueue& World::getCommands()
 
 bool World::hasAlivePlayer() const
 {
-	return !playerFrog->isMarkedForRemoval();
+	return !playerPacman->isMarkedForRemoval();
 }
 
 bool World::hasPlayerReachedEnd() const
 {
-	return !worldBounds.contains(playerFrog->getPosition());
+	return !worldBounds.contains(playerPacman->getPosition());
 }
 
 void World::update(sf::Time dt) {
 
 	// reset player velocity
-	playerFrog->setVelocity(0.f, 0.f);
+	playerPacman->setVelocity(0.f, 0.f);
 
 	destroyEntitiesOutsideView();
 
@@ -78,7 +78,8 @@ void World::draw() {
 void World::loadTextures()
 {
 	textures.load(Textures::TextureID::Background, "Media/Textures/background2.png");
-	textures.load(Textures::TextureID::Frog, "Media/Textures/frog.png");
+	textures.load(Textures::TextureID::Pacman, "Media/Textures/Entities2.png");
+	textures.load(Textures::TextureID::Ghost, "Media/Textures/Entities2.png");
 	textures.load(Textures::TextureID::Car1, "Media/Textures/frog.png");
 	textures.load(Textures::TextureID::Car2, "Media/Textures/frog.png");
 	textures.load(Textures::TextureID::Car3, "Media/Textures/frog.png");
@@ -117,12 +118,12 @@ void World::buildScene() {
 
 	addEnemies();
 
-	// Player Actor (frog)
-	std::unique_ptr<Actor> frog(new Actor(Actor::Type::Frog, textures, fonts));
-	playerFrog = frog.get();
-	playerFrog->setPosition(spawnPosition);
-	playerFrog->setVelocity(0.f, scrollSpeed);
-	sceneLayers[UpperAir]->attachChild(std::move(frog));
+	// Player Actor (pacman)
+	std::unique_ptr<Actor> pacman(new Actor(Actor::Type::Pacman, textures, fonts));
+	playerPacman = pacman.get();
+	playerPacman->setPosition(spawnPosition);
+	playerPacman->setVelocity(0.f, scrollSpeed);
+	sceneLayers[UpperAir]->attachChild(std::move(pacman));
 
 }
 
@@ -130,9 +131,12 @@ void World::addEnemies()
 {
 	// Add enemies to the spawn point container
 
-	addEnemy(Actor::Type::Car2, 0.f, 460.f);
-	addEnemy(Actor::Type::Tractor, 0.f, 420.f);
-	addEnemy(Actor::Type::Car3, 0.f, 380.f);
+	addEnemy(Actor::Type::Ghost, 20.f, 460.f);
+	addEnemy(Actor::Type::Ghost, 100.f, 430.f);
+	addEnemy(Actor::Type::Ghost, 180.f, 410.f);
+	addEnemy(Actor::Type::Ghost, 260.f, 390.f);
+	addEnemy(Actor::Type::Ghost, 340.f, 340.f);
+	addEnemy(Actor::Type::Ghost, 420.f, 440.f);
 	addEnemy(Actor::Type::Cherry, 240.f, 0.f);
 
 
@@ -172,22 +176,23 @@ void World::handleCollisions()
 	std::set<SceneNode::Pair> collisionPairs;
 	sceneGraph.checkSceneCollision(sceneGraph, collisionPairs);
 
-	// better collision? and making the frog die RIP
+	// better collision? and making the pacman die RIP
 	for (auto pair : collisionPairs)
 	{
 
-		if (matchesCategories(pair, Category::Frog, Category::Cherry)) {
-			auto& frog = static_cast<Actor&>(*pair.first);
+		if (matchesCategories(pair, Category::Pacman, Category::Cherry)) {
+			auto& pacman = static_cast<Actor&>(*pair.first);
 			auto& actor = static_cast<Actor&>(*pair.second);
 
-			frog.setPosition(spawnPosition);
+			pacman.setPosition(spawnPosition);
 		}
 
-		if (matchesCategories(pair, Category::Frog, Category::Actor)) {
-			auto& frog = static_cast<Actor&>(*pair.first);
+		if (matchesCategories(pair, Category::Pacman, Category::Actor)) {
+			auto& pacman = static_cast<Actor&>(*pair.first);
 			auto& actor = static_cast<Actor&>(*pair.second);
 
-			frog.damage(10);
+			pacman.damage(1000);
+			pacman.setPosition(spawnPosition);
 		}
 
 	}
@@ -225,11 +230,11 @@ void World::destroyEntitiesOutsideView()
 
 void World::adaptPlayerVelocity()
 {
-	sf::Vector2f velocity = playerFrog->getVelocity();
+	sf::Vector2f velocity = playerPacman->getVelocity();
 
 	// If moving diagonally, normalize the velocity
 	if (velocity.x != 0.f && velocity.y != 0.f)
-		playerFrog->setVelocity(velocity / std::sqrt(2.f));
+		playerPacman->setVelocity(velocity / std::sqrt(2.f));
 
 	// Add scrolling velocity
 	//playerAircraft->accelerate(0.f, scrollSpeed);
@@ -237,7 +242,7 @@ void World::adaptPlayerVelocity()
 
 void World::adaptPlayerPosition()
 {
-	sf::Vector2f position = playerFrog->getPosition();
+	sf::Vector2f position = playerPacman->getPosition();
 	float left = worldView.getCenter().x - worldView.getSize().x / 2.f;
 	float right = worldView.getCenter().x + worldView.getSize().x / 2.f;
 	float top = worldView.getCenter().y - worldView.getSize().y / 2.f;
@@ -247,16 +252,16 @@ void World::adaptPlayerPosition()
 	const float lilypadBorderDistance = 15.f;
 
 	if (position.x < left + borderDistance) {
-		playerFrog->setPosition(left + borderDistance, position.y);
+		playerPacman->setPosition(left + borderDistance, position.y);
 	}
 	else if (position.x > right - borderDistance) {
-		playerFrog->setPosition(right - borderDistance, position.y);
+		playerPacman->setPosition(right - borderDistance, position.y);
 	}
 	else if (position.y > bottom - borderDistance) {
-		playerFrog->setPosition(position.x, bottom - borderDistance);
+		playerPacman->setPosition(position.x, bottom - borderDistance);
 	}
 	else if (position.y < top + lilypadBorderDistance) {
-		playerFrog->setPosition(position.x, top + lilypadBorderDistance);
+		playerPacman->setPosition(position.x, top + lilypadBorderDistance);
 	}
 }
 
@@ -294,7 +299,7 @@ void World::adaptNPCPosition()
 
 void World::updateSounds()
 {
-	sounds.setListenerPosition(playerFrog->getPosition());
+	sounds.setListenerPosition(playerPacman->getPosition());
 	sounds.removeStoppedSounds();
 }
 
