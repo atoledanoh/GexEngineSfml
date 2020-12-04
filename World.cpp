@@ -6,7 +6,7 @@
 #include "SoundNode.h"
 #include "Projectile.h"
 
-World::World(sf::RenderTarget& outputTarget, FontHolder_t & fonts, SoundPlayer& sounds)
+World::World(sf::RenderTarget& outputTarget, FontHolder_t& fonts, SoundPlayer& sounds)
 	: target(outputTarget)
 	, sceneTexture()
 	, worldView(target.getDefaultView())
@@ -16,16 +16,15 @@ World::World(sf::RenderTarget& outputTarget, FontHolder_t & fonts, SoundPlayer& 
 	, sceneGraph()
 	, sceneLayers()
 	, commandQueue()
-	, worldBounds(0.f, 0.f, worldView.getSize().x, 6000.f)
-	, spawnPosition(worldView.getSize().x / 2.f, worldBounds.height - worldView.getSize().y / 2.f)
-	, scrollSpeed(-100.f)
-	, playerAircraft(nullptr)
+	, worldBounds(0.f, 0.f, worldView.getSize().x, worldView.getSize().y)
+	, spawnPosition(240.f, 580.f)
+	, playerFrog(nullptr)
 {
 	sceneTexture.create(target.getSize().x, target.getSize().y);
 	loadTextures();
 	buildScene();
 
-	worldView.setCenter(spawnPosition);
+	worldView.setCenter(240.f, 300.f);
 }
 
 CommandQueue& World::getCommands()
@@ -35,25 +34,18 @@ CommandQueue& World::getCommands()
 
 bool World::hasAlivePlayer() const
 {
-	return !playerAircraft->isMarkedForRemoval();
+	return !playerFrog->isMarkedForRemoval();
 }
 
 bool World::hasPlayerReachedEnd() const
 {
-	return !worldBounds.contains(playerAircraft->getPosition());
+	return !worldBounds.contains(playerFrog->getPosition());
 }
 
 void World::update(sf::Time dt) {
 
-	//worldView.zoom(1.000);
-	//worldView.rotate(0.0f);
-	//playerAircraft->rotate(2.f);
-
-	// scroll view
-	//worldView.move(0.f, scrollSpeed * dt.asSeconds());
-
 	// reset player velocity
-	playerAircraft->setVelocity(0.f, 0.f);
+	playerFrog->setVelocity(0.f, 0.f);
 
 	destroyEntitiesOutsideView();
 
@@ -76,38 +68,23 @@ void World::update(sf::Time dt) {
 }
 
 void World::draw() {
-	if (PostEffect::isSupported())
-	{
-		sceneTexture.clear();
-		sceneTexture.setView(worldView);
-		sceneTexture.draw(sceneGraph);
-		sceneTexture.display();
-		bloomEffect.apply(sceneTexture, target);
-	}
-	else
-	{
-		target.setView(worldView);
-		target.draw(sceneGraph);
-	}
+
+	target.setView(worldView);
+	target.draw(sceneGraph);
+
 }
 
 
 void World::loadTextures()
 {
-	textures.load(Textures::TextureID::Desert, "Media/Textures/Desert.png");
-	textures.load(Textures::TextureID::Jungle, "Media/Textures/Jungle.png");
-	textures.load(Textures::TextureID::Explosion, "Media/Textures/Explosion.png");
-	textures.load(Textures::TextureID::Particle, "Media/Textures/Particle.png");
-	textures.load(Textures::TextureID::FinishLine, "Media/Textures/FinishLine.png");
-	textures.load(Textures::TextureID::Entities, "Media/Textures/Entities.png");
-
 	textures.load(Textures::TextureID::Background, "Media/Textures/background.png");
-	textures.load(Textures::TextureID::Zombie1, "Media/Textures/Zombie1.png");
-	textures.load(Textures::TextureID::Zombie2, "Media/Textures/Zombie2.png");
-	textures.load(Textures::TextureID::Zombie3, "Media/Textures/Zombie3.png");
-	textures.load(Textures::TextureID::Zombie4, "Media/Textures/Zombie4.png");
-	textures.load(Textures::TextureID::Zombie5, "Media/Textures/Zombie5.png");
-	textures.load(Textures::TextureID::Hero2, "Media/Textures/Hero2.png");
+	textures.load(Textures::TextureID::Frog, "Media/Textures/frog.png");
+	textures.load(Textures::TextureID::Car1, "Media/Textures/frog.png");
+	textures.load(Textures::TextureID::Car2, "Media/Textures/frog.png");
+	textures.load(Textures::TextureID::Car3, "Media/Textures/frog.png");
+	textures.load(Textures::TextureID::Tractor, "Media/Textures/frog.png");
+	textures.load(Textures::TextureID::Truck, "Media/Textures/frog.png");
+
 }
 
 void World::buildScene() {
@@ -137,63 +114,32 @@ void World::buildScene() {
 	background->setPosition(worldBounds.left, worldBounds.top - viewHeight);
 	sceneLayers[Background]->attachChild(std::move(background));
 
-	// finish line
-	sf::Texture& finishTexture = textures.get(Textures::TextureID::FinishLine);
-	std::unique_ptr<SpriteNode> finishSprite(new SpriteNode(finishTexture));
-	finishSprite->setPosition(0.f, -76.f);
-	sceneLayers[Background]->attachChild(std::move(finishSprite));
-
-	// add particle systems
-	std::unique_ptr<ParticleNode> smokeNode(new ParticleNode(Particle::Type::Smoke, textures));
-	sceneLayers[LowerAir]->attachChild(std::move(smokeNode));
-
-	std::unique_ptr<ParticleNode> propellantNode(new ParticleNode(Particle::Type::Propellant, textures));
-	sceneLayers[LowerAir]->attachChild(std::move(propellantNode));
-
-	// Player Aircraft
-	std::unique_ptr<Actor> leader(new Actor(Actor::Type::Hero2, textures, fonts));
-	playerAircraft = leader.get();
-	playerAircraft->setPosition(spawnPosition);
-	playerAircraft->setVelocity(0.f, scrollSpeed);
-	sceneLayers[UpperAir]->attachChild(std::move(leader));
-
 	addEnemies();
 
+	// Player Actor (frog)
+	std::unique_ptr<Actor> frog(new Actor(Actor::Type::Frog, textures, fonts));
+	playerFrog = frog.get();
+	playerFrog->setPosition(spawnPosition);
+	playerFrog->setVelocity(0.f, scrollSpeed);
+	sceneLayers[UpperAir]->attachChild(std::move(frog));
 
 }
 
 void World::addEnemies()
 {
 	// Add enemies to the spawn point container
-	addEnemy(Actor::Type::Zombie1, -500.f, 300.f);
-	addEnemy(Actor::Type::Zombie2, -470.f, 200.f);
-	addEnemy(Actor::Type::Zombie3, 470.f, 200.f);
-	addEnemy(Actor::Type::Zombie4, -400.f, 100.f);
-	addEnemy(Actor::Type::Zombie5, -170.f, 100.f);
-	addEnemy(Actor::Type::Zombie1, 170.f, 100.f);
-	/*
-	addEnemy(Aircraft::Type::Raptor, +100.f, 1100.f);
-	addEnemy(Aircraft::Type::Raptor, -100.f, 1100.f);
-	addEnemy(Aircraft::Type::Avenger, -70.f, 1400.f);
-	addEnemy(Aircraft::Type::Avenger, -70.f, 1600.f);
-	addEnemy(Aircraft::Type::Avenger, 70.f, 1400.f);
-	addEnemy(Aircraft::Type::Avenger, 70.f, 1600.f);
 
-	addEnemy(Aircraft::Type::Raptor, 0.f, 2500.f);
-	addEnemy(Aircraft::Type::Raptor, 0.f, 3000.f);
-	addEnemy(Aircraft::Type::Raptor, +100.f, 4100.f);
-	addEnemy(Aircraft::Type::Raptor, -100.f, 4100.f);
+	addEnemy(Actor::Type::Truck, 0.f, 540.f);
+	addEnemy(Actor::Type::Car1, 0.f, 500.f);
+	addEnemy(Actor::Type::Car2, 0.f, 460.f);
+	addEnemy(Actor::Type::Tractor, 0.f, 420.f);
+	addEnemy(Actor::Type::Car3, 0.f, 380.f);
 
-	addEnemy(Aircraft::Type::Avenger, -70.f, 4400.f);
-	addEnemy(Aircraft::Type::Avenger, -70.f, 4600.f);
-	addEnemy(Aircraft::Type::Avenger, -170.f, 5400.f);
-	addEnemy(Aircraft::Type::Avenger, 0.f, 5400.f);
-	addEnemy(Aircraft::Type::Avenger, 170.f, 5400.f);
-	addEnemy(Aircraft::Type::Avenger, -170.f, 5600.f);
-	addEnemy(Aircraft::Type::Avenger, 0.f, 5600.f);
-	addEnemy(Aircraft::Type::Avenger, 170.f, 5600.f);
-	*/
-	
+	//addEnemy(Actor::Type::Zombie2, -470.f, 200.f);
+
+	//addEnemy(Aircraft::Type::Raptor, +100.f, 1100.f);
+	//addEnemy(Aircraft::Type::Avenger, -70.f, 1400.f);
+
 
 	std::sort(enemySpawnPoints.begin(), enemySpawnPoints.end(),
 		[](SpawnPoint lhs, SpawnPoint rhs) {
@@ -203,7 +149,7 @@ void World::addEnemies()
 
 void World::addEnemy(Actor::Type type, float relX, float relY)
 {
-	SpawnPoint spawn(type, spawnPosition.x + relX, spawnPosition.y - relY);
+	SpawnPoint spawn(type, relX, relY);
 	enemySpawnPoints.push_back(spawn);
 }
 
@@ -231,41 +177,16 @@ void World::handleCollisions()
 	std::set<SceneNode::Pair> collisionPairs;
 	sceneGraph.checkSceneCollision(sceneGraph, collisionPairs);
 
+	// better collision? and making the frog die RIP
 	for (auto pair : collisionPairs)
 	{
-		if (matchesCategories(pair, Category::Hero, Category::Zombie)) {
-			auto& hero = static_cast<Actor&>(*pair.first);
-			auto& zombie = static_cast<Actor&>(*pair.second);
+		if (matchesCategories(pair, Category::Frog, Category::Actor)) {
+			auto& frog = static_cast<Actor&>(*pair.first);
+			auto& actor = static_cast<Actor&>(*pair.second);
 
-			if (hero.getState() == Actor::State::Attack)
-				zombie.damage(1);
-			else
-				hero.damage(1);
+			frog.damage(10);
 		}
 
-		if (matchesCategories(pair, Category::Hero, Category::Actor)) {
-			auto& first = static_cast<Actor&>(*pair.first);
-			auto& second = static_cast<Actor&>(*pair.second);
-
-			if (first.getPosition().x < second.getPosition().x) {
-				first.move(sf::Vector2f(-1.f, 0.f));
-				second.move(sf::Vector2f(1.f, 0.f));
-			}
-			else {
-				first.move(sf::Vector2f(1.f, 0.f));
-				second.move(sf::Vector2f(-1.f, 0.f));
-			}
-
-			if (first.getPosition().y < second.getPosition().y) {
-				first.move(sf::Vector2f(0.f, -1.f));
-				second.move(sf::Vector2f(0.f, 1.f));
-			}
-			else {
-				first.move(sf::Vector2f(0.f, 1.f));
-				second.move(sf::Vector2f(0.f, -1.f));
-			}
-
-		}
 	}
 }
 
@@ -295,17 +216,17 @@ void World::destroyEntitiesOutsideView()
 		if (!getBattlefieldBounds().intersects(e.getBoundingRect())) {
 			e.destroy();
 		}
-	});
+		});
 	commandQueue.push(command);
 }
 
 void World::adaptPlayerVelocity()
 {
-	sf::Vector2f velocity = playerAircraft->getVelocity();
+	sf::Vector2f velocity = playerFrog->getVelocity();
 
 	// If moving diagonally, normalize the velocity
 	if (velocity.x != 0.f && velocity.y != 0.f)
-		playerAircraft->setVelocity(velocity / std::sqrt(2.f));
+		playerFrog->setVelocity(velocity / std::sqrt(2.f));
 
 	// Add scrolling velocity
 	//playerAircraft->accelerate(0.f, scrollSpeed);
@@ -313,32 +234,33 @@ void World::adaptPlayerVelocity()
 
 void World::adaptPlayerPosition()
 {
-	sf::Vector2f position = playerAircraft->getPosition();
+	sf::Vector2f position = playerFrog->getPosition();
 	float left = worldView.getCenter().x - worldView.getSize().x / 2.f;
 	float right = worldView.getCenter().x + worldView.getSize().x / 2.f;
 	float top = worldView.getCenter().y - worldView.getSize().y / 2.f;
 	float bottom = worldView.getCenter().y + worldView.getSize().y / 2.f;
 
-	const float borderDistance = 40.f;
+	const float borderDistance = 15.f;
+	const float lilypadBorderDistance = 100.f;
 
 	if (position.x < left + borderDistance) {
-		playerAircraft->setPosition(left + borderDistance, position.y);
+		playerFrog->setPosition(left + borderDistance, position.y);
 	}
 	else if (position.x > right - borderDistance) {
-		playerAircraft->setPosition(right - borderDistance, position.y);
+		playerFrog->setPosition(right - borderDistance, position.y);
 	}
 	else if (position.y > bottom - borderDistance) {
-		playerAircraft->setPosition(position.x, bottom - borderDistance);
+		playerFrog->setPosition(position.x, bottom - borderDistance);
 	}
-	else if (position.y < top + borderDistance) {
-		playerAircraft->setPosition(position.x, top + borderDistance);
+	else if (position.y < top + lilypadBorderDistance) {
+		playerFrog->setPosition(position.x, top + lilypadBorderDistance);
 	}
 }
 
 void World::adaptNPCPosition()
 {
 	Command adaptPosition;
-	adaptPosition.category = Category::Zombie;
+	adaptPosition.category = Category::Actor;
 	adaptPosition.action = derivedAction<Actor>([this](Actor& enemy, sf::Time)
 		{
 			float left = worldView.getCenter().x - worldView.getSize().x / 2.f;
@@ -346,10 +268,10 @@ void World::adaptNPCPosition()
 			float top = worldView.getCenter().y - worldView.getSize().y / 2.f;
 			float bottom = worldView.getCenter().y + worldView.getSize().y / 2.f;
 
-			const float borderDistance = 40.f;
+			const float borderDistance = 20.f;
 
 			sf::Vector2f enemyPosition = enemy.getPosition();
-			
+
 			if (enemyPosition.x < left + borderDistance) {
 				enemy.setPosition(left + borderDistance, enemyPosition.y);
 			}
@@ -369,7 +291,7 @@ void World::adaptNPCPosition()
 
 void World::updateSounds()
 {
-	sounds.setListenerPosition(playerAircraft->getPosition());
+	sounds.setListenerPosition(playerFrog->getPosition());
 	sounds.removeStoppedSounds();
 }
 
@@ -402,7 +324,7 @@ void World::guideMissiles()
 					minDistance = enemyDistance;
 				}
 			}
-			
+
 			if (closestEnemy)
 				missile.guideTowards(closestEnemy->getWorldPosition());
 		});

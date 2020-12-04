@@ -12,7 +12,7 @@
 const sf::Time Application::TimePerFrame = sf::seconds(1.f / 60.f);
 
 Application::Application()
-	: window(sf::VideoMode(480, 480), "SFML Works!")
+	: window(sf::VideoMode(480, 600), "SFML Works!")
 	, textures()
 	, fonts()
 	, player()
@@ -26,7 +26,7 @@ Application::Application()
 	window.setKeyRepeatEnabled(false);
 
 	fonts.load(Fonts::FontID::Main, "Media/Sansation.ttf");
-	textures.load(Textures::TextureID::TitleScreen, "Media/Textures/TitleScreen.png");
+	textures.load(Textures::TextureID::TitleScreen, "Media/Textures/FroggerTitle.png");
 
 	statsText.setFont(fonts.get(Fonts::FontID::Main));
 	statsText.setPosition(5.f, 5.f);

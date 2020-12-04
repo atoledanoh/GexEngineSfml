@@ -67,5 +67,8 @@ Frame Animation2::update(sf::Time dt)
 			currentFrame_ %= frames_.size();
 		}
 	}
+	if (currentFrame_ >= frames_.size()) {
+		currentFrame_ = frames_.size() - 1;
+	}
 	return getCurrentFrame();
 }

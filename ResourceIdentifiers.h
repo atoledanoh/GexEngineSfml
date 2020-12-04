@@ -48,13 +48,13 @@ namespace Textures
 		Particle,
 		FinishLine,
 
+		Frog,
+		Car1,
+		Car2,
+		Car3,
+		Tractor,
+		Truck,
 		Background,
-		Zombie1,
-		Zombie2,
-		Zombie3,
-		Zombie4,
-		Zombie5,
-		Hero2,
 	};
 }
 

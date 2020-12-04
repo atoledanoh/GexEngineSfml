@@ -16,9 +16,9 @@ namespace
 Actor::Actor(Type type, const TextureHolder_t& textures, const FontHolder_t& fonts)
 	: Entity(100)
 	, type_(type)
-	, state_(State::Walk)
+	, state_(State::JumpUp)
 	, sprite_(textures.get(TABLE.at(type).texture))
-	, direction_(Direction::Right)
+	, direction_(Direction::Up)
 	, travelDistance_(0.f)
 	, directionIndex_(0)
 	, attack_(false)
@@ -28,8 +28,35 @@ Actor::Actor(Type type, const TextureHolder_t& textures, const FontHolder_t& fon
 	{
 		animations_[a.first] = a.second;
 	}
-	if (Actor::getCategory() == Category::Zombie)
-		state_ = State::Rise;  // zombies spawn in rise state
+
+	switch (type)
+	{
+	case Actor::Type::Frog:
+		state_ = State::JumpUp;
+		break;
+
+	//case Actor::Type::Car1:
+	//	break;
+
+	//case Actor::Type::Car2:
+	//	break;
+
+	//case Actor::Type::Car3:
+	//	break;
+
+	//case Actor::Type::Tractor:
+	//	state_ = State::Idle;
+	//	break;
+
+	//case Actor::Type::Truck:
+	//	state_ = State::Idle;
+	//	break;
+
+	default:
+		state_ = State::Idle;
+		break;
+
+	}
 
 	sprite_.setTextureRect(sf::IntRect());
 	centerOrigin(sprite_);
@@ -40,25 +67,38 @@ Actor::Actor(Type type, const TextureHolder_t& textures, const FontHolder_t& fon
 	std::unique_ptr<TextNode> health(new TextNode(fonts, ""));
 	healthDisplay_ = health.get();
 	attachChild(std::move(health));
-	updateTexts();
+	//updateTexts();
 }
+
+
 
 unsigned int Actor::getCategory() const
 {
 	switch (type_)
 	{
-	case Type::Hero2:
-		return Category::Hero;
+	case Type::Frog:
+		return Category::Frog;
 		break;
-	case Type::Zombie1:
-	case Type::Zombie2:
-	case Type::Zombie3:
-	case Type::Zombie4:
-	case Type::Zombie5:
-		return Category::Zombie;
+	case Type::Car1:
+		return Category::Car1;
+		break;
+
+	case Type::Car2:
+		return Category::Car2;
+		break;
+
+	case Type::Car3:
+		return Category::Car3;
+		break;
+
+	case Type::Tractor:
+		return Category::Tractor;
+		break;
+
+	case Type::Truck:
+		return Category::Truck;
 		break;
 	}
-	return Category::Zombie;
 }
 
 void Actor::updateMovementPattern(sf::Time dt)
@@ -115,9 +155,9 @@ Actor::State Actor::getState() const
 
 int Actor::attackPoints() const
 {
-	if (type_ == Type::Hero2 && state_ == State::Attack)
+	if (type_ == Type::Frog && state_ == State::Attack)
 		return TABLE.at(type_).damageDone;
-	else if (type_ != Type::Hero2)
+	else if (type_ != Type::Frog)
 		return TABLE.at(type_).damageDone;
 	else
 		return 0;
@@ -127,22 +167,6 @@ void Actor::updateStates()
 {
 	if (isDestroyed())
 		state_ = Actor::State::Dead;
-
-	if (state_ == Actor::State::Attack && animations_[state_].isFinished())
-		state_ = Actor::State::Walk;
-
-	if (attack_ && state_ != Actor::State::Attack)
-	{
-		state_ = Actor::State::Attack;
-		animations_[state_].restart();
-		attack_ = false;
-	}
-
-	if (state_ == Actor::State::Rise && animations_[state_].isFinished())
-		state_ = Actor::State::Idle;
-
-	if (state_ == Actor::State::Idle && length(getVelocity()) > 0.1f)
-		state_ = Actor::State::Walk;
 }
 
 void Actor::updateCurrent(sf::Time dt, CommandQueue& commands)
@@ -151,18 +175,6 @@ void Actor::updateCurrent(sf::Time dt, CommandQueue& commands)
 
 	auto rec = animations_.at(state_).update(dt);
 
-	if (state_ != State::Dead)
-	{
-		if (direction_ == Direction::Left && getVelocity().x > 10)
-			direction_ = Direction::Right;
-		if (direction_ == Direction::Right && getVelocity().x < 0)
-			direction_ = Direction::Left;
-	}
-
-	// flip image left right
-	if (direction_ == Direction::Left)
-		rec = flip(rec);
-
 	sprite_.setTextureRect(rec);
 	centerOrigin(sprite_);
 
@@ -170,7 +182,7 @@ void Actor::updateCurrent(sf::Time dt, CommandQueue& commands)
 		Entity::updateCurrent(dt, commands);
 
 	updateMovementPattern(dt);
-	updateTexts();
+	//updateTexts();
 }
 
 void Actor::drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const
@@ -183,4 +195,38 @@ void Actor::updateTexts()
 	healthDisplay_->setString(std::to_string(getHitPoints()) + "HP");
 	healthDisplay_->setPosition(0.f, 70.f);
 	healthDisplay_->setRotation(-getRotation());
+}
+
+void Actor::hop(Direction d)
+{
+	const float HOP_SIZE = 40.f;
+
+	switch (d)
+	{
+	case Actor::Direction::Left:
+		setState(Actor::State::JumpLeft);
+		move(-1 * HOP_SIZE, 0.f);
+		break;
+
+	case Actor::Direction::Right:
+		setState(Actor::State::JumpRight);
+		move(HOP_SIZE, 0.f);
+
+		break;
+
+	case Actor::Direction::Up:
+		setState(Actor::State::JumpUp);
+		move(0.f, -1 * HOP_SIZE);
+
+		break;
+
+	case Actor::Direction::Down:
+		setState(Actor::State::JumpDown);
+		move(0.f, HOP_SIZE);
+
+		break;
+
+	default:
+		break;
+	}
 }

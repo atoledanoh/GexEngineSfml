@@ -13,8 +13,8 @@
 
 struct Direction {
 	Direction(float angle, float distance)
-		: angle (angle)
-		, distance (distance)
+		: angle(angle)
+		, distance(distance)
 	{}
 	float angle;
 	float distance;
@@ -41,9 +41,9 @@ struct ProjectileData
 struct PickupData
 {
 	std::function<void(Actor&)>	action;
-	//TextureHolder_t					texture;
-	Textures::TextureID					texture;
-	sf::IntRect				textureRect;
+	//TextureHolder_t				texture;
+	Textures::TextureID			texture;
+	sf::IntRect					textureRect;
 };
 
 struct ParticleData
@@ -57,7 +57,7 @@ struct ActorData
 	int									hitpoints;
 	int									damageDone;
 	float								speed;
-	Textures::TextureID							texture;
+	Textures::TextureID					texture;
 	std::map<Actor::State, Animation2>	animations;
 	std::vector<Direction>				directions;
 };

@@ -49,7 +49,6 @@ private:
 	bool								matchesCategories(SceneNode::Pair& colliders,	
 											Category::Type type1, Category::Type type2);
 	void								destroyEntitiesOutsideView();
-	
 
 	void								adaptPlayerVelocity();
 	void								adaptPlayerPosition();
@@ -97,7 +96,8 @@ private:
 	sf::FloatRect						worldBounds;
 	sf::Vector2f						spawnPosition;
 	float								scrollSpeed;
-	Actor*								playerAircraft;
+	Actor*								playerFrog;
+	int									jumpCooldown;
 
 	std::vector<SpawnPoint>				enemySpawnPoints;
 	std::vector<Actor*>					activeEnemies;
