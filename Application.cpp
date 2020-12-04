@@ -12,7 +12,7 @@
 const sf::Time Application::TimePerFrame = sf::seconds(1.f / 60.f);
 
 Application::Application()
-	: window(sf::VideoMode(480, 600), "SFML Works!")
+	: window(sf::VideoMode(480, 480), "SFML Works!")
 	, textures()
 	, fonts()
 	, player()
@@ -33,7 +33,7 @@ Application::Application()
 	statsText.setCharacterSize(10u);
 
 	registerStates();
-	stateStack.pushState(StateID::Title);
+	stateStack.pushState(StateID::Game);
 
 	music.setVolume(25.f);
 }

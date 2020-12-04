@@ -17,7 +17,7 @@ World::World(sf::RenderTarget& outputTarget, FontHolder_t& fonts, SoundPlayer& s
 	, sceneLayers()
 	, commandQueue()
 	, worldBounds(0.f, 0.f, worldView.getSize().x, worldView.getSize().y)
-	, spawnPosition(240.f, 580.f)
+	, spawnPosition(240.f, 240.f)
 	, playerFrog(nullptr)
 {
 	sceneTexture.create(target.getSize().x, target.getSize().y);
@@ -77,7 +77,7 @@ void World::draw() {
 
 void World::loadTextures()
 {
-	textures.load(Textures::TextureID::Background, "Media/Textures/background.png");
+	textures.load(Textures::TextureID::Background, "Media/Textures/background2.png");
 	textures.load(Textures::TextureID::Frog, "Media/Textures/frog.png");
 	textures.load(Textures::TextureID::Car1, "Media/Textures/frog.png");
 	textures.load(Textures::TextureID::Car2, "Media/Textures/frog.png");
