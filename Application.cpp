@@ -12,7 +12,7 @@
 const sf::Time Application::TimePerFrame = sf::seconds(1.f / 60.f);
 
 Application::Application()
-	: window(sf::VideoMode(1280, 720), "SFML Works!")
+	: window(sf::VideoMode(480, 480), "SFML Works!")
 	, textures()
 	, fonts()
 	, player()

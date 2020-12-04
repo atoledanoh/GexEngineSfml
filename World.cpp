@@ -101,7 +101,7 @@ void World::loadTextures()
 	textures.load(Textures::TextureID::FinishLine, "Media/Textures/FinishLine.png");
 	textures.load(Textures::TextureID::Entities, "Media/Textures/Entities.png");
 
-	textures.load(Textures::TextureID::Road, "Media/Textures/Road.png");
+	textures.load(Textures::TextureID::Background, "Media/Textures/background.png");
 	textures.load(Textures::TextureID::Zombie1, "Media/Textures/Zombie1.png");
 	textures.load(Textures::TextureID::Zombie2, "Media/Textures/Zombie2.png");
 	textures.load(Textures::TextureID::Zombie3, "Media/Textures/Zombie3.png");
@@ -125,7 +125,7 @@ void World::buildScene() {
 	sceneGraph.attachChild(std::move(soundNode));
 
 	// prepare background texture
-	sf::Texture& texture = textures.get(Textures::TextureID::Road);
+	sf::Texture& texture = textures.get(Textures::TextureID::Background);
 	texture.setRepeated(true);
 
 	float viewHeight = worldView.getSize().y;
@@ -133,9 +133,9 @@ void World::buildScene() {
 	textureRect.height += static_cast<int>(viewHeight);
 
 	// background spritenode
-	std::unique_ptr<SpriteNode> road(new SpriteNode(texture, textureRect));
-	road->setPosition(worldBounds.left, worldBounds.top - viewHeight);
-	sceneLayers[Background]->attachChild(std::move(road));
+	std::unique_ptr<SpriteNode> background(new SpriteNode(texture, textureRect));
+	background->setPosition(worldBounds.left, worldBounds.top - viewHeight);
+	sceneLayers[Background]->attachChild(std::move(background));
 
 	// finish line
 	sf::Texture& finishTexture = textures.get(Textures::TextureID::FinishLine);

@@ -48,7 +48,7 @@ namespace Textures
 		Particle,
 		FinishLine,
 
-		Road,
+		Background,
 		Zombie1,
 		Zombie2,
 		Zombie3,
